@@ -53,13 +53,13 @@ inventory-management-system/
 │   │   └── util/
 │   └── Main/
 │
-├── Docs/
+├── Documentation/
 │   ├── Requirements/
 │   ├── Diagrams/
 │   ├── User-Stories/
 │   └── Meeting-Notes/
 │
-├── Design/
+├── System Design/
 │   ├── Wireframes/
 │   ├── Mockups/
 │   └── Style-Guide/
