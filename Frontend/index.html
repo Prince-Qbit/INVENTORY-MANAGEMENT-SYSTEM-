@@ -1,0 +1,454 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockPilot | Store Management</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<section id="loginPage" class="login-page">
+    <div class="login-left">
+        <div class="login-brand">
+            <div class="brand-icon"><i data-lucide="boxes"></i></div>
+        </div>
+
+
+        <!-- The inline styles override your fixed padding and ensure it scales safely across all screen sizes -->
+<div class="loginpic" style="padding: 20px; display: flex; justify-content: center; align-items: center; width: 100%; max-width: 100%; overflow: hidden;">
+    <img src="images/gro.svg" style="width: 100%; max-width: 500px; height: auto; object-fit: contain;" alt="Login Graphic">
+</div>
+
+
+        <!-- <p class="login-footer">© 2026 StockPilot. All rights reserved.</p> -->
+    </div>
+
+    <div class="login-right">
+        <form id="loginForm" class="login-card">
+            <div class="mobile-brand">
+                <i data-lucide="boxes"></i> StockPilot
+            </div>
+            
+            <h2>Sign in to your account</h2>
+
+
+            <label>Username</label>
+            <div class="input-wrap">
+                <i data-lucide="user"></i>
+                <input id="username" type="text" placeholder="Enter username" required>
+            </div>
+
+            <label>Password</label>
+            <div class="input-wrap">
+                <i data-lucide="lock"></i>
+                <input id="password" type="password" placeholder="Enter password" required>
+                <button type="button" class="password-toggle" id="togglePassword">
+                    <i data-lucide="eye"></i>
+                </button>
+            </div>
+
+            <p id="loginError" class="error-message"></p>
+
+            <button type="submit" class="primary-btn login-btn">
+                Sign in <i data-lucide="arrow-right"></i>
+            </button>
+
+            <div class="demo-login">
+                <strong>Demo login details</strong>
+                <p>Admin: admin / admin123</p>
+                <p>Cashier: cashier / cashier123</p>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- MAIN APPLICATION -->
+<div id="app" class="app hidden">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i data-lucide="boxes"></i></div>
+            <span class="dashlogo">StockPilot</span>
+        </div>
+
+        <div class="nav-label">WORKSPACE</div>
+
+        <nav class="navigation">
+            <button class="nav-item active" data-page="dashboard">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </button>
+
+            <button class="nav-item admin-only" data-page="products">
+                <i data-lucide="package"></i>
+                <span>Products</span>
+            </button>
+
+            <button class="nav-item" data-page="pos">
+                <i data-lucide="shopping-cart"></i>
+                <span>Point of Sale</span>
+            </button>
+
+            <button class="nav-item admin-only" data-page="history">
+                <i data-lucide="receipt-text"></i>
+                <span>Sales History</span>
+            </button>
+
+            <button class="nav-item" data-page="alerts"><i data-lucide="alert-triangle"></i><span>Stock Alerts</span><span id="alertBadge" class="nav-badge">0</span></button>
+            <button class="nav-item admin-only" data-page="updates"><i data-lucide="history"></i><span>Product Updates</span></button>
+            <button class="nav-item" data-page="orders"><i data-lucide="clipboard-list"></i><span>Current Orders</span></button>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="user-profile">
+                <div class="avatar" id="userAvatar">A</div>
+                <div>
+                    <strong id="sidebarUsername">Admin</strong>
+                    <small id="sidebarRole">Administrator</small>
+                </div>
+                <button id="logoutBtn" title="Logout">
+                    <i data-lucide="log-out"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <h2 id="pageTitle">Dashboard</h2>
+                <p id="pageSubtitle">Here's what's happening in your store.</p>
+            </div>
+            <div class="topbar-right">
+                <div class="date-display">
+                    <i data-lucide="calendar-days"></i>
+                    <span id="todayDate"></span>
+                </div>
+                <div class="top-avatar" id="topAvatar">A</div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="page active-page">
+            <div class="welcome-row">
+                <div>
+                    <h1>Good day, <span id="welcomeName">Admin</span>.</h1>
+                    <p>Here is your store overview.</p>
+                </div>
+                <button class="primary-btn admin-only" onclick="openProductModal()">
+                    <i data-lucide="plus"></i> Add product
+                </button>
+            </div>
+
+            <div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <img src="images/sales.svg" style="display: block; width: 28px; height: 28px;" alt="Sales">
+        </div>
+        <p>Today's Sales</p>
+        <h2 id="todaySales">GH₵0.00</h2>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <img src="images/transaction.svg" style="display: block; width: 28px; height: 28px;" alt="Transactions">
+        </div>
+        <p>Transactions</p>
+        <h2 id="todayTransactions">0</h2>
+    </div>
+    
+    <div class="stat-card admin-only">
+        <div class="stat-icon orange">
+            <img src="images/products.svg" style="display: block; width: 28px; height: 28px;" alt="Products">
+        </div>
+        <p>Products in Store</p>
+        <h2 id="totalProducts">0</h2>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <img src="images/danger.svg" style="display: block; width: 28px; height: 28px;" alt="Low Stock">
+        </div>
+        <p>Low Stock Items</p>
+        <h2 id="lowStockCount">0</h2>
+    </div>
+</div>
+
+
+            <div class="extra-stats-grid admin-only">
+                <div class="panel"><p>Inventory value (cost × quantity)</p><h2 id="inventoryValue">GH₵0.00</h2></div>
+                <div class="panel"><p>Cash sales today</p><h2 id="dashCash">GH₵0.00</h2></div>
+                <div class="panel"><p>Mobile Money today</p><h2 id="dashMobile">GH₵0.00</h2></div>
+                <div class="panel"><p>Card sales today</p><h2 id="dashCard">GH₵0.00</h2></div>
+            </div>
+            <div class="dashboard-grid">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Stock requiring attention</h3>
+                            <p>Products that need restocking</p>
+                        </div>
+                        <button class="text-btn" onclick="showPage('alerts')">View all</button>
+                    </div>
+                    <div id="dashboardAlerts"></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Recent sales</h3>
+                            <p>Your latest transactions</p>
+                        </div>
+                    </div>
+                    <div id="recentSales"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRODUCTS -->
+        <section id="products" class="page">
+            <div class="section-toolbar">
+                <div>
+                    <h2>Product inventory</h2>
+                    <p>Manage your store products and stock.</p>
+                </div>
+                <button class="primary-btn" onclick="openProductModal()">
+                    <i data-lucide="plus"></i> Add product
+                </button>
+            </div>
+
+            <div class="search-bar">
+                <i data-lucide="search"></i>
+                <input type="text" id="productSearch" placeholder="Search products...">
+            </div>
+
+            <div class="panel table-panel">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- POINT OF SALE -->
+        <section id="pos" class="page">
+            <div class="section-toolbar">
+                <div>
+                    <h2>Point of Sale</h2>
+                    <p>Select products and complete customer purchases.</p>
+                </div>
+            </div>
+
+            <div class="pos-layout">
+                <div class="pos-products">
+                    <div class="search-bar">
+                        <i data-lucide="search"></i>
+                        <input id="salesSearch" placeholder="Search products...">
+                    </div>
+                    <div id="categoryFilters" class="category-filters"></div>
+                    <div id="productGallery" class="product-gallery"></div>
+                </div>
+
+                <div class="cart-panel">
+                    <div class="panel-heading">
+                        <h3>Current order</h3>
+                        <button class="text-btn" id="clearCartButton" type="button">Clear</button>
+                    </div>
+                    <div id="cartItems"></div>
+
+                    <div class="cart-total">
+                        <div><span>Items</span><strong id="cartCount">0</strong></div>
+                        <div><span>Subtotal</span><strong id="subtotal">GH₵0.00</strong></div>
+                        <div class="grand-total"><span>Total</span><strong id="cartTotal">GH₵0.00</strong></div>
+                    </div>
+
+                    <label>Payment method</label>
+                    <select id="paymentMethod">
+                        <option>Cash</option>
+                        <option>Mobile Money</option>
+                        <option>Card</option>
+                    </select>
+                    <div id="cashFields" class="cash-fields">
+                        <label for="amountReceived">Amount received (GH₵)</label>
+                        <input id="amountReceived" type="number" min="0" step="0.01" placeholder="Enter amount received">
+                        <div class="change-row"><span>Change due</span><strong id="changeDue">GH₵0.00</strong></div>
+                        <small id="cashShortfall" class="error-message"></small>
+                    </div>
+                    <div class="cart-actions">
+                        <button type="button" class="secondary-btn" id="saveOrderButton">Save order</button>
+                        <button type="button" class="primary-btn checkout-btn" id="checkoutButton">Complete sale <i data-lucide="arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cashier-metrics">
+                <div class="panel">
+                    <p>Today's sales</p>
+                    <h2 id="cashierSales">GH₵0.00</h2>
+                </div>
+                <div class="panel">
+                    <p>Transactions</p>
+                    <h2 id="cashierTransactions">0</h2>
+                </div>
+                <div class="panel">
+                    <p>Items sold</p>
+                    <h2 id="cashierItems">0</h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- SALES HISTORY -->
+        <section id="history" class="page">
+            <div class="section-toolbar">
+                <div>
+                    <h2>Sales history</h2>
+                    <p>Review completed transactions.</p>
+                </div>
+            </div>
+            <div class="search-bar"><i data-lucide="search"></i><input id="historySearch" placeholder="Search receipt, cashier or payment..."></div>
+            <div class="panel table-panel">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Receipt</th>
+                            <th>Date</th>
+                            <th>Cashier</th>
+                            <th>Payment</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesHistory"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- STOCK ALERTS -->
+        <section id="alerts" class="page">
+            <div class="section-toolbar">
+                <div>
+                    <h2>Stock alerts</h2>
+                    <p>Products that are running low or out of stock.</p>
+                </div>
+            </div>
+
+            <div class="alert-summary">
+                <div class="panel">
+                    <p>Low stock products</p>
+                    <h2 id="alertLowCount">0</h2>
+                </div>
+                <div class="panel">
+                    <p>Out of stock</p>
+                    <h2 id="alertOutCount">0</h2>
+                </div>
+            </div>
+
+            <div id="alertsList" class="alerts-list"></div>
+        </section>
+
+        <section id="updates" class="page">
+            <div class="section-toolbar"><div><h2>Product Updates</h2><p>Every stock addition is recorded separately with its time and balance.</p></div></div>
+            <div class="extra-stats-grid"><div class="panel"><p>Updates today</p><h2 id="updatesTodayCount">0</h2></div><div class="panel"><p>Units added today</p><h2 id="updatesTodayUnits">0</h2></div></div>
+            <div class="search-bar"><i data-lucide="search"></i><input id="updatesSearch" placeholder="Search product, SKU or admin..."></div>
+            <div id="productUpdatesList" class="product-updates-list"></div>
+        </section>
+
+        <section id="orders" class="page">
+            <div class="section-toolbar"><div><h2>Current Orders</h2><p>Saved orders can be reopened and completed later.</p></div></div>
+            <div id="currentOrdersList" class="current-orders-list"></div>
+        </section>
+    </main>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-heading">
+            <div>
+                <h2 id="modalTitle">Add new product</h2>
+                <p>Enter the product information below.</p>
+            </div>
+            <button class="close-btn" onclick="closeProductModal()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <form id="productForm">
+            <input type="hidden" id="editProductId">
+
+            <label>Product name</label>
+            <input id="productName" required placeholder="e.g. Bottled Water">
+
+            <div class="form-grid">
+                <div>
+                    <label>SKU</label>
+                    <input id="productSKU" required placeholder="e.g. SKU001">
+                </div>
+                <div>
+                    <label>Category</label>
+                    <input id="productCategory" placeholder="e.g. Drinks">
+                </div>
+                <div>
+                    <label>Cost price (GH₵)</label>
+                    <input id="productCost" type="number" min="0" step="0.01" required>
+                </div>
+                <div>
+                    <label>Selling price (GH₵)</label>
+                    <input id="productPrice" type="number" min="0" step="0.01" required>
+                </div>
+                <div>
+                    <label>Quantity</label>
+                    <input id="productQuantity" type="number" min="0" required>
+                </div>
+                <div>
+                    <label>Low-stock threshold</label>
+                    <input id="productThreshold" type="number" min="0" value="5">
+                </div>
+            </div>
+
+            <label>Product picture</label>
+            <label for="productImage" class="image-upload">
+                <i data-lucide="image-plus"></i>
+                <span>Click to upload product picture</span>
+                <small>JPG, PNG or WEBP</small>
+            </label>
+            <input type="file" id="productImage" accept="image/*" hidden>
+            <img id="imagePreview" class="image-preview hidden" alt="Product preview">
+
+            <div class="modal-actions">
+                <button type="button" class="secondary-btn" onclick="closeProductModal()">Cancel</button>
+                <button type="submit" class="primary-btn">Save product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- RESTOCK FORM -->
+<div id="restockModal" class="modal"><div class="modal-content compact-modal"><div class="modal-heading"><div><h2>Add stock</h2><p>Record each delivery as a separate update.</p></div><button class="close-btn" type="button" onclick="closeRestockModal()"><i data-lucide="x"></i></button></div>
+<form id="restockForm"><input type="hidden" id="restockProductId"><p class="restock-current"><strong id="restockProductName"></strong> · Current stock: <b id="restockCurrent">0</b></p><label for="restockQuantity">Quantity being added</label><input id="restockQuantity" type="number" min="1" step="1" required placeholder="e.g. 50"><label for="restockNote">Note (optional)</label><input id="restockNote" placeholder="e.g. Morning delivery"><div class="modal-actions"><button type="button" class="secondary-btn" onclick="closeRestockModal()">Cancel</button><button type="submit" class="primary-btn">Record stock</button></div></form></div></div>
+
+<!-- IN-PAGE CONFIRMATION -->
+<div id="messageModal" class="modal"><div class="modal-content compact-modal"><div class="modal-heading"><h2 id="dialogTitle">Please confirm</h2><button class="close-btn" type="button" onclick="closeDialog()"><i data-lucide="x"></i></button></div><div id="dialogBody"></div><div id="dialogActions" class="modal-actions"></div></div></div>
+
+<!-- RECEIPT -->
+<div id="receiptModal" class="modal"><div class="modal-content receipt-modal"><div class="modal-heading"><h2>Sale completed</h2><button class="close-btn" type="button" onclick="closeReceipt()"><i data-lucide="x"></i></button></div><div id="receiptContent"></div><div class="modal-actions"><button class="secondary-btn" type="button" onclick="closeReceipt()">Close</button><button class="primary-btn" type="button" id="printReceiptButton">Print receipt</button></div></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
