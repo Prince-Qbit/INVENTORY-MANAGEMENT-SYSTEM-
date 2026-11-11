@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 620" width="940" height="620" font-family="Arial, Helvetica, sans-serif" font-size="13">
+  <defs>
+    <marker id="dep" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M1,1 L9,5 L1,9" fill="none" stroke="#333" stroke-width="1.5"/>
+    </marker>
+  </defs>
+  <rect width="940" height="620" fill="#ffffff"/>
+  <text x="470" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#222">UML Class Diagram: Inventory Management System</text>
+
+  <!-- ===== Sale ===== -->
+  <rect x="30" y="60" width="230" height="168" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  <rect x="30" y="60" width="230" height="28" fill="#dae8fc" stroke="#333" stroke-width="1.5"/>
+  <text x="145" y="79" text-anchor="middle" font-weight="bold" font-size="14">Sale</text>
+  <text x="40" y="106">- saleId : int</text>
+  <text x="40" y="126">- saleDate : date</text>
+  <text x="40" y="146">- totalAmount : decimal</text>
+  <text x="40" y="166">- paymentMethod : string</text>
+  <line x1="30" y1="178" x2="260" y2="178" stroke="#333" stroke-width="1.5"/>
+  <text x="40" y="196">+ calculateTotal() : decimal</text>
+  <text x="40" y="216">+ save() : void</text>
+
+  <!-- ===== SaleItem ===== -->
+  <rect x="360" y="60" width="220" height="168" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  <rect x="360" y="60" width="220" height="28" fill="#dae8fc" stroke="#333" stroke-width="1.5"/>
+  <text x="470" y="79" text-anchor="middle" font-weight="bold" font-size="14">SaleItem</text>
+  <text x="370" y="106">- saleItemId : int</text>
+  <text x="370" y="126">- saleId : int</text>
+  <text x="370" y="146">- productId : int</text>
+  <text x="370" y="166">- quantitySold : int</text>
+  <text x="370" y="186">- unitPrice : decimal</text>
+  <line x1="360" y1="198" x2="580" y2="198" stroke="#333" stroke-width="1.5"/>
+  <text x="370" y="216">+ getSubtotal() : decimal</text>
+
+  <!-- ===== Product ===== -->
+  <rect x="680" y="60" width="230" height="288" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  <rect x="680" y="60" width="230" height="28" fill="#dae8fc" stroke="#333" stroke-width="1.5"/>
+  <text x="795" y="79" text-anchor="middle" font-weight="bold" font-size="14">Product</text>
+  <text x="690" y="106">- productId : int</text>
+  <text x="690" y="126">- name : string</text>
+  <text x="690" y="146">- sku : string</text>
+  <text x="690" y="166">- category : string</text>
+  <text x="690" y="186">- costPrice : decimal</text>
+  <text x="690" y="206">- sellingPrice : decimal</text>
+  <text x="690" y="226">- quantityInStock : int</text>
+  <text x="690" y="246">- reorderLevel : int</text>
+  <line x1="680" y1="258" x2="910" y2="258" stroke="#333" stroke-width="1.5"/>
+  <text x="690" y="276">+ isLowStock() : boolean</text>
+  <text x="690" y="296">+ hasEnoughStock(qty) : boolean</text>
+  <text x="690" y="316">+ reduceStock(qty : int) : void</text>
+  <text x="690" y="336">+ getStockValue() : decimal</text>
+
+  <!-- Sale 1 ◆—— 1..* SaleItem (composition) -->
+  <polygon points="260,140 272,134 284,140 272,146" fill="#333" stroke="#333"/>
+  <line x1="284" y1="140" x2="360" y2="140" stroke="#333" stroke-width="1.5"/>
+  <text x="288" y="132" font-size="12">1</text>
+  <text x="356" y="132" text-anchor="end" font-size="12">1..*</text>
+  <text x="310" y="160" text-anchor="middle" font-size="11" font-style="italic">contains</text>
+
+  <!-- SaleItem * —— 1 Product (association) -->
+  <line x1="580" y1="140" x2="680" y2="140" stroke="#333" stroke-width="1.5"/>
+  <text x="586" y="132" font-size="12">*</text>
+  <text x="674" y="132" text-anchor="end" font-size="12">1</text>
+  <text x="630" y="160" text-anchor="middle" font-size="11" font-style="italic">refers to</text>
+
+  <!-- ===== InventoryService ===== -->
+  <rect x="300" y="400" width="340" height="188" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  <rect x="300" y="400" width="340" height="40" fill="#d5e8d4" stroke="#333" stroke-width="1.5"/>
+  <text x="470" y="417" text-anchor="middle" font-size="11" font-style="italic">«application logic»</text>
+  <text x="470" y="433" text-anchor="middle" font-weight="bold" font-size="14">InventoryService</text>
+  <text x="310" y="460">+ addProduct(product : Product) : void</text>
+  <text x="310" y="480">+ updateProduct(product : Product) : void</text>
+  <text x="310" y="500">+ deleteProduct(productId : int) : void</text>
+  <text x="310" y="520">+ searchProduct(keyword : string) : List&lt;Product&gt;</text>
+  <text x="310" y="540">+ recordSale(productId : int, qty : int) : Sale</text>
+  <text x="310" y="560">+ getLowStockItems() : List&lt;Product&gt;</text>
+  <text x="310" y="580">+ calculateInventoryValue() : decimal</text>
+
+  <!-- InventoryService depends on Product -->
+  <polyline points="640,480 795,480 795,348" fill="none" stroke="#333" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+  <text x="720" y="472" text-anchor="middle" font-size="11" font-style="italic">«manages»</text>
+
+  <!-- InventoryService depends on Sale -->
+  <polyline points="300,480 145,480 145,228" fill="none" stroke="#333" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+  <text x="222" y="472" text-anchor="middle" font-size="11" font-style="italic">«creates»</text>
+
+  <!-- InventoryService depends on SaleItem -->
+  <polyline points="470,400 470,228" fill="none" stroke="#333" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#dep)"/>
+  <text x="478" y="320" font-size="11" font-style="italic">«creates»</text>
+</svg>

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 790" width="680" height="790" font-family="Arial, Helvetica, sans-serif" font-size="14">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+  </defs>
+  <rect width="680" height="790" fill="#ffffff"/>
+  <text x="340" y="22" text-anchor="middle" font-size="18" font-weight="bold" fill="#222">Flowchart: Record Sale</text>
+
+  <!-- Start -->
+  <rect x="250" y="40" width="140" height="40" rx="20" fill="#d5e8d4" stroke="#82b366" stroke-width="2"/>
+  <text x="320" y="65" text-anchor="middle">Start</text>
+  <line x1="320" y1="80" x2="320" y2="110" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Select product -->
+  <rect x="220" y="110" width="200" height="50" fill="#dae8fc" stroke="#6c8ebf" stroke-width="2"/>
+  <text x="320" y="140" text-anchor="middle">User selects a product</text>
+  <line x1="320" y1="160" x2="320" y2="190" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Enter quantity -->
+  <rect x="220" y="190" width="200" height="50" fill="#dae8fc" stroke="#6c8ebf" stroke-width="2"/>
+  <text x="320" y="220" text-anchor="middle">User enters quantity</text>
+  <line x1="320" y1="240" x2="320" y2="270" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Decision -->
+  <polygon points="320,270 440,330 320,390 200,330" fill="#fff2cc" stroke="#d6b656" stroke-width="2"/>
+  <text x="320" y="327" text-anchor="middle">Is available</text>
+  <text x="320" y="345" text-anchor="middle">stock enough?</text>
+
+  <!-- Yes branch -->
+  <line x1="320" y1="390" x2="320" y2="430" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="332" y="415" font-weight="bold" fill="#2e7d32">Yes</text>
+
+  <rect x="220" y="430" width="200" height="50" fill="#dae8fc" stroke="#6c8ebf" stroke-width="2"/>
+  <text x="320" y="460" text-anchor="middle">Save the sale</text>
+  <line x1="320" y1="480" x2="320" y2="510" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="220" y="510" width="200" height="50" fill="#dae8fc" stroke="#6c8ebf" stroke-width="2"/>
+  <text x="320" y="540" text-anchor="middle">Save sale items</text>
+  <line x1="320" y1="560" x2="320" y2="590" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="220" y="590" width="200" height="50" fill="#dae8fc" stroke="#6c8ebf" stroke-width="2"/>
+  <text x="320" y="620" text-anchor="middle">Reduce product stock</text>
+  <line x1="320" y1="640" x2="320" y2="670" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="220" y="670" width="200" height="50" fill="#d5e8d4" stroke="#82b366" stroke-width="2"/>
+  <text x="320" y="700" text-anchor="middle">Show success message</text>
+  <line x1="320" y1="720" x2="320" y2="738" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- No branch -->
+  <line x1="440" y1="330" x2="500" y2="330" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="458" y="322" font-weight="bold" fill="#c62828">No</text>
+  <rect x="500" y="305" width="150" height="50" fill="#f8cecc" stroke="#b85450" stroke-width="2"/>
+  <text x="575" y="335" text-anchor="middle">"Insufficient stock"</text>
+  <polyline points="575,355 575,764 400,764" fill="none" stroke="#333" stroke-width="2"/>
+
+  <!-- End -->
+  <rect x="250" y="738" width="140" height="40" rx="20" fill="#f5f5f5" stroke="#666" stroke-width="2"/>
+  <text x="320" y="763" text-anchor="middle">End</text>
+  <line x1="400" y1="764" x2="390" y2="764" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+</svg>
