@@ -252,7 +252,9 @@ public class StockPilotServer {
         Map<Long, Long> wanted = new LinkedHashMap<>();
         for (Object o : items) {
             Map<String, Object> m = (Map<String, Object>) o;
-            long q = (long) num(m.get("quantity"));
+            double rawQuantity = num(m.get("quantity"));
+            if (rawQuantity != Math.floor(rawQuantity)) throw new ApiException(400, "Invalid quantity.");
+            long q = (long) rawQuantity;
             if (q <= 0) throw new ApiException(400, "Invalid quantity.");
             wanted.merge((long) num(m.get("id")), q, Long::sum);
         }
@@ -289,7 +291,9 @@ public class StockPilotServer {
         for (Object o : items) {
             Map<String, Object> m = (Map<String, Object>) o;
             Map<String, Object> p = findProduct((long) num(m.get("id")));
-            long q = (long) num(m.get("quantity"));
+            double rawQuantity = num(m.get("quantity"));
+            if (rawQuantity != Math.floor(rawQuantity)) throw new ApiException(400, "Invalid quantity.");
+            long q = (long) rawQuantity;
             if (q <= 0) throw new ApiException(400, "Invalid quantity.");
             total += num(p.get("selling")) * q;
             lines.add(obj("id", p.get("id"), "name", p.get("name"), "selling", p.get("selling"), "quantity", q));
