@@ -33,6 +33,24 @@ It provides basic inventory management features suitable for a small store or sh
 **Other:**
 - Git & GitHub (Version Control)
 
+## RUN THE CONNECTED APPLICATION
+
+See the complete [StockPilot system documentation](Documentation.md) for architecture, user workflows, API reference, data model, permissions, troubleshooting, and maintenance guidance.
+
+The Java server serves the frontend and exposes the REST API used by `Frontend/app.js`.
+
+```powershell
+javac Backend\StockPilotServer.java
+java -cp Backend StockPilotServer 8080 Frontend
+```
+
+Open `http://localhost:8080/` in a browser. The demo accounts are:
+
+- Admin: `admin` / `admin123`
+- Cashier: `cashier` / `cashier123`
+
+Inventory, sales, updates, and saved orders are persisted by the backend in `data.json`.
+
 
 ## FOLDER STRUCTURE 
 
