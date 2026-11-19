@@ -14,7 +14,7 @@ import java.util.concurrent.*;
  * Data is persisted to data.json next to the server.
  */
 public class StockPilotServer {
-    
+    static final Object LOCK = new Object();
     static final Path DATA_FILE = Paths.get("data.json");
     static final Map<String, Map<String, Object>> SESSIONS = new ConcurrentHashMap<>();
     static Path webRoot = Paths.get(".");
