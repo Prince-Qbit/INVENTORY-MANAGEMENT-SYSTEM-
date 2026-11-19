@@ -80,9 +80,71 @@ function clearCart(){cart=[];updateCart();}
 function cartTotal(){return cart.reduce((sum,p)=>sum+Number(p.selling)*p.quantity,0);}
 function updateCashChange(){const total=cartTotal(),received=Number($('amountReceived')?.value||0);$('changeDue').textContent=money(Math.max(0,received-total));$('cashShortfall').textContent=received>0&&received<total?`Short by ${money(total-received)}`:'';}
 function updateCart(){$('cartItems').innerHTML=cart.length?cart.map(p=>`<div class="cart-item"><div><strong>${esc(p.name)}</strong><small>${money(p.selling)} each</small><div class="quantity-controls"><button type="button" onclick="changeQuantity(${p.id},-1)">−</button><span>${p.quantity}</span><button type="button" onclick="changeQuantity(${p.id},1)">+</button></div></div><strong>${money(p.selling*p.quantity)}</strong></div>`).join(''):'<div class="empty-state">Your cart is empty.</div>';const total=cartTotal();$('subtotal').textContent=money(total);$('cartTotal').textContent=money(total);$('cartCount').textContent=cart.reduce((n,p)=>n+p.quantity,0);updateCashChange();}
-$('paymentMethod').addEventListener('change',()=>{$('cashFields').classList.toggle('hidden',$('paymentMethod').value!=='Cash');});$('amountReceived').addEventListener('input',updateCashChange);
-async function checkout(){if(!cart.length){toast('Add products to the order first.','error');return;}const total=cartTotal(),method=$('paymentMethod').value,received=method==='Cash'?Number($('amountReceived').value):total;if(method==='Cash'&&received<total){toast('Amount received is less than the total.','error');return;}try{const sale=await apiRequest('/sales',{method:'POST',body:JSON.stringify({payment:method,received,items:cart.map(p=>({id:p.id,quantity:p.quantity}))})});await loadServerState();cart=[];$('amountReceived').value='';updateCart();renderAll();showReceipt(sale);}catch(error){toast(error.message,'error');}}
-function showReceipt(s){$('receiptContent').innerHTML=`<div class="receipt-header"><h2>StockPilot</h2><p>Sales receipt</p></div><div class="receipt-meta"><span>Receipt</span><strong>${esc(s.id)}</strong><span>Date</span><strong>${new Date(s.date).toLocaleString()}</strong><span>Cashier</span><strong>${esc(s.cashier)}</strong><span>Payment</span><strong>${esc(s.payment)}</strong></div><div class="receipt-items">${s.items.map(i=>`<div><span>${esc(i.name)} × ${i.quantity}</span><strong>${money(i.price*i.quantity)}</strong></div>`).join('')}</div><div class="receipt-total"><span>Total</span><strong>${money(s.total)}</strong></div>${s.payment==='Cash'?`<div class="receipt-meta"><span>Received</span><strong>${money(s.received)}</strong><span>Change</span><strong>${money(s.change)}</strong></div>`:''}<p class="receipt-footer">Thank you for shopping with us.</p>`;$('receiptModal').classList.add('show');}
+$('paymentMethod').addEventListener('change',()=>{
+ const method=$('paymentMethod').value;
+ $('cashFields').classList.toggle('hidden',method!=='Cash');
+ $('mobileMoneyFields').classList.toggle('hidden',method!=='Mobile Money');
+ $('cardFields').classList.toggle('hidden',method!=='Card');
+});
+function selectProvider(button){
+ const target=$(button.dataset.target);
+ if(!target)return;
+ target.value=button.dataset.provider;
+ button.parentElement.querySelectorAll('.provider-option').forEach(option=>option.classList.toggle('active',option===button));
+ if(target.id==='cardProvider'){
+  const paypal=target.value==='PayPal';
+  $('cardAccountFields').classList.toggle('hidden',paypal);
+  $('paypalAccountFields').classList.toggle('hidden',!paypal);
+  $('physicalCardFields').classList.toggle('hidden',paypal);
+ }
+}
+document.querySelectorAll('.provider-option').forEach(button=>button.addEventListener('click',()=>selectProvider(button)));
+$('amountReceived').addEventListener('input',updateCashChange);
+async function checkout(){
+ if(!cart.length){toast('Add products to the order first.','error');return;}
+ const total=cartTotal(),method=$('paymentMethod').value,received=method==='Cash'?Number($('amountReceived').value):total;
+ if(method==='Cash'&&received<total){toast('Amount received is less than the total.','error');return;}
+ if(method==='Cash'){await completeCheckout({payment:method,received,items:cart.map(p=>({id:p.id,quantity:p.quantity}))});return;}
+ let provider='',account='';
+ if(method==='Mobile Money'){
+  provider=$('mobileMoneyProvider').value;
+  account=$('mobileMoneyNumber').value.trim();
+  const number=account.replace(/[^0-9]/g,'');
+  if(!provider){toast('Select a Mobile Money network.','error');return;}
+  if(!/^(0[235][0-9]{8}|233[235][0-9]{8})$/.test(number)){toast('Enter a valid Ghana Mobile Money number.','error');return;}
+ }else{
+  provider=$('cardProvider').value;
+  if(!provider){toast('Select a card type.','error');return;}
+  if(provider==='PayPal'){
+   account=$('paypalEmail').value.trim();
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(account)){toast('Enter a valid PayPal email.','error');return;}
+  }else{
+   account=$('cardNumber').value.trim();
+   const number=account.replace(/[^0-9]/g,'');
+   if(!/^[0-9]{12,19}$/.test(number)){toast('Enter a valid card number.','error');return;}
+   if(!$('cardHolderName').value.trim()){toast('Enter the name on the card.','error');return;}
+   if(!/^(0[1-9]|1[0-2])\/[0-9]{2}$/.test($('cardExpiry').value.trim())){toast('Enter a valid expiry in MM/YY format.','error');return;}
+   if(!/^[0-9]{3,4}$/.test($('cardCvv').value.trim())){toast('Enter a valid CVV.','error');return;}
+  }
+ }
+ requestPaymentPin(method,total,provider,account);
+}
+function requestPaymentPin(method,total,provider,account){
+ const label=method==='Mobile Money'?`${provider} Mobile Money`:`${provider}`;
+ showDialog(`Demo ${label} approval`, `<p>This local demo uses an in-app approval PIN. Live ${esc(label)} prompts require the provider merchant integration and credentials.</p><p>Enter a demo PIN to approve GH₵${total.toFixed(2)}.</p><label for="paymentPin">Demo PIN</label><input id="paymentPin" class="dialog-input" type="password" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{4,6}" placeholder="4 to 6 digits">`,`<button class="secondary-btn" type="button" onclick="closeDialog()">Cancel</button><button class="primary-btn" type="button" id="authorizePayment">Authorize payment</button>`);
+ $('paymentPin').focus();
+ $('authorizePayment').onclick=async()=>{
+  const pin=$('paymentPin').value.trim();
+  if(!/^\d{4,6}$/.test(pin)){toast('Enter a numeric PIN containing 4 to 6 digits.','error');return;}
+  closeDialog();
+  try{
+   const authorization=await apiRequest('/payments/authorize',{method:'POST',body:JSON.stringify({payment:method,provider,account,amount:total,pin})});
+   await completeCheckout({payment:method,provider,received:total,paymentReference:authorization.paymentReference,items:cart.map(p=>({id:p.id,quantity:p.quantity}))});
+  }catch(error){toast(error.message,'error');}
+ };
+}
+async function completeCheckout(payload){try{const sale=await apiRequest('/sales',{method:'POST',body:JSON.stringify(payload)});await loadServerState();cart=[];$('amountReceived').value='';updateCart();renderAll();showReceipt(sale);}catch(error){toast(error.message,'error');}}
+function showReceipt(s){$('receiptContent').innerHTML=`<div class="receipt-header"><h2>StockPilot</h2><p>Sales receipt</p></div><div class="receipt-meta"><span>Receipt</span><strong>${esc(s.id)}</strong><span>Date</span><strong>${new Date(s.date).toLocaleString()}</strong><span>Cashier</span><strong>${esc(s.cashier)}</strong><span>Payment</span><strong>${esc(s.payment)}</strong>${s.paymentProvider?`<span>Provider</span><strong>${esc(s.paymentProvider)}</strong>`:''}${s.paymentAccount?`<span>Account</span><strong>${esc(s.paymentAccount)}</strong>`:''}</div><div class="receipt-items">${s.items.map(i=>`<div><span>${esc(i.name)} × ${i.quantity}</span><strong>${money(i.price*i.quantity)}</strong></div>`).join('')}</div><div class="receipt-total"><span>Total</span><strong>${money(s.total)}</strong></div>${s.payment==='Cash'?`<div class="receipt-meta"><span>Received</span><strong>${money(s.received)}</strong><span>Change</span><strong>${money(s.change)}</strong></div>`:''}<p class="receipt-footer">Thank you for shopping with us.</p>`;$('receiptModal').classList.add('show');}
 function closeReceipt(){$('receiptModal').classList.remove('show');}
 function printReceipt(){const content=$('receiptContent').innerHTML,w=window.open('','_blank','width=420,height=650');if(!w){toast('Allow pop-ups to print the receipt.','error');return;}w.document.write(`<html><head><title>StockPilot receipt</title><style>body{font:14px Arial;padding:24px;color:#222}.receipt-header{text-align:center}.receipt-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0}.receipt-items>div,.receipt-total{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ddd}.receipt-total{font-size:18px;font-weight:bold}.receipt-footer{text-align:center;margin-top:28px}</style></head><body>${content}</body></html>`);w.document.close();w.focus();w.print();}
 function getAlerts(){return products.filter(p=>statusOf(p)!=='good');}

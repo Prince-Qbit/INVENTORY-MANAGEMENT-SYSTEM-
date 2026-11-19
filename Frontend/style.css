@@ -1083,6 +1083,27 @@ td {
 .cash-fields{margin:14px 0;padding:12px;background:#f7f7f2;border:1px solid var(--border)}
 .cash-fields label{display:block;margin:8px 0 5px;font-size:13px}
 .cash-fields input{width:100%;padding:10px;border:1px solid var(--border);background:#fff;border-radius:4px}
+.payment-fields{margin:14px 0;padding:12px;background:#f7f7f2;border:1px solid var(--border)}
+.payment-fields label{display:block;margin:8px 0 5px;font-size:13px}
+.payment-fields input,.payment-fields select{width:100%;padding:10px;border:1px solid var(--border);background:#fff;border-radius:4px}
+.payment-fields .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.provider-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 12px}
+.provider-status{display:block;margin-bottom:8px;color:var(--muted);font-size:11px;line-height:1.45}
+.provider-option{display:flex;align-items:center;gap:8px;min-width:0;padding:8px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--text);text-align:left}
+.provider-option.active{border-color:var(--green);box-shadow:0 0 0 2px rgba(46,125,50,.12)}
+.provider-option>span:last-child{min-width:0}
+.provider-option strong,.provider-option small{display:block;overflow:hidden;text-overflow:ellipsis}
+.provider-option small{margin-top:2px;color:var(--muted);font-size:11px}
+.provider-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 42px;width:42px;height:32px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:.2px}
+.telecel-icon{background:#dc1f26;color:#fff}
+.mtn-icon{background:#ffcc00;color:#191919}
+.airteltigo-icon{background:linear-gradient(135deg,#d71920 0 50%,#1769aa 50%);color:#fff}
+.visa-icon{background:#1434cb;color:#fff;font-style:italic}
+.paypal-icon{background:#003087;color:#fff;font-size:18px;font-style:italic}
+.mastercard-icon{position:relative;background:#fff;border:1px solid #ddd}
+.mastercard-icon i{position:absolute;top:8px;width:16px;height:16px;border-radius:50%}
+.mastercard-icon i:first-child{left:8px;background:#eb001b}
+.mastercard-icon i:last-child{right:8px;background:#f79e1b;opacity:.92}
 .change-row{display:flex;justify-content:space-between;margin-top:10px;font-size:14px}
 .cart-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:12px}
 .cart-actions button{min-width:0;justify-content:center}

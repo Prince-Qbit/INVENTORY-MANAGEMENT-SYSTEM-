@@ -24,6 +24,7 @@ public class StockPilotServer {
     static List<Map<String, Object>> sales = new ArrayList<>();
     static List<Map<String, Object>> updates = new ArrayList<>();
     static List<Map<String, Object>> orders = new ArrayList<>();
+    static final Map<String, Map<String, Object>> PAYMENT_AUTHORIZATIONS = new ConcurrentHashMap<>();
 
     static class ApiException extends RuntimeException {
         final int status;
@@ -43,7 +44,6 @@ public class StockPilotServer {
     }
 
     // ================= HTTP =================
-    @SuppressWarnings("unchecked")
     static void handle(HttpExchange ex) throws IOException {
         try {
             ex.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
@@ -128,6 +128,9 @@ public class StockPilotServer {
             case "sales":
                 if (method.equals("POST")) return checkout(body, user);
                 if (method.equals("GET")) { requireAdmin(admin); return sales; }
+                break;
+            case "payments":
+                if (p.length == 2 && p[1].equals("authorize") && method.equals("POST")) return authorizePayment(body);
                 break;
             case "updates":
                 if (method.equals("GET")) { requireAdmin(admin); return updates; }
@@ -248,6 +251,7 @@ public class StockPilotServer {
         if (items.isEmpty()) throw new ApiException(400, "Add products to the order first.");
         String method = str(b.get("payment"));
         if (!List.of("Cash", "Mobile Money", "Card").contains(method)) throw new ApiException(400, "Invalid payment method.");
+        String paymentReference = str(b.get("paymentReference"));
 
         Map<Long, Long> wanted = new LinkedHashMap<>();
         for (Object o : items) {
@@ -269,6 +273,21 @@ public class StockPilotServer {
         total = Math.round(total * 100) / 100.0;
         double received = method.equals("Cash") ? num(b.get("received")) : total;
         if (method.equals("Cash") && received < total) throw new ApiException(400, "Amount received is less than the total.");
+        if (!method.equals("Cash")) {
+            if (!paymentReference.isEmpty()) {
+                Map<String, Object> authorization = PAYMENT_AUTHORIZATIONS.remove(paymentReference);
+                if (authorization == null
+                        || !method.equals(str(authorization.get("paymentMethod")))
+                        || num(authorization.get("amount")) != total
+                        || System.currentTimeMillis() - (long) num(authorization.get("expiresAt")) > 0) {
+                    throw new ApiException(402, "Payment authorization is invalid or has expired.");
+                }
+                b.put("paymentProvider", str(authorization.get("provider")));
+                b.put("paymentAccount", str(authorization.get("accountMask")));
+            } else {
+                validatePaymentPin(method, str(b.get("pin")));
+            }
+        }
 
         for (Map.Entry<Long, Long> e : wanted.entrySet()) {
             Map<String, Object> p = findProduct(e.getKey());
@@ -276,9 +295,56 @@ public class StockPilotServer {
         }
         Map<String, Object> sale = obj("id", "SP-" + System.currentTimeMillis(), "date", Instant.now().toString(),
                 "cashier", user.get("name"), "payment", method, "total", total, "received", received,
-                "change", Math.max(0, Math.round((received - total) * 100) / 100.0), "items", lines);
+                "change", Math.max(0, Math.round((received - total) * 100) / 100.0),
+                "paymentProvider", str(b.get("paymentProvider")), "paymentAccount", str(b.get("paymentAccount")),
+                "items", lines);
         sales.add(0, sale);
         save(); return sale;
+    }
+
+    static Object authorizePayment(Map<String, Object> b) {
+        String method = str(b.get("payment"));
+        if (!List.of("Mobile Money", "Card").contains(method)) {
+            throw new ApiException(400, "Payment authorization is only available for Mobile Money or Card.");
+        }
+        String provider = str(b.get("provider")).trim();
+        String account = str(b.get("account")).trim();
+        if (method.equals("Mobile Money")) {
+            if (!List.of("Telecel", "MTN", "AirtelTigo").contains(provider)) {
+                throw new ApiException(400, "Select a valid Mobile Money network.");
+            }
+            String normalizedAccount = account.replaceAll("[^0-9]", "");
+            if (!normalizedAccount.matches("(0[235][0-9]{8}|233[235][0-9]{8})")) {
+                throw new ApiException(400, "Enter a valid Ghana mobile money number.");
+            }
+        } else {
+            if (!List.of("Visa Card", "MasterCard", "PayPal").contains(provider)) {
+                throw new ApiException(400, "Select a valid card type.");
+            }
+            if (provider.equals("PayPal")) {
+                if (!account.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+                    throw new ApiException(400, "Enter a valid PayPal email.");
+                }
+            } else if (!account.replaceAll("[^0-9]", "").matches("[0-9]{12,19}")) {
+                throw new ApiException(400, "Enter a valid card number.");
+            }
+        }
+        validatePaymentPin(method, str(b.get("pin")));
+        double amount = num(b.get("amount"));
+        if (amount <= 0) throw new ApiException(400, "Payment amount must be greater than zero.");
+        String reference = "PAY-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        Map<String, Object> authorization = obj("paymentMethod", method, "amount", Math.round(amount * 100) / 100.0,
+                "provider", provider, "accountMask", accountMask(account),
+                "expiresAt", System.currentTimeMillis() + 5 * 60 * 1000L);
+        PAYMENT_AUTHORIZATIONS.put(reference, authorization);
+        return obj("authorized", true, "paymentMethod", method, "amount", authorization.get("amount"),
+                "paymentReference", reference, "status", "approved");
+    }
+
+    static void validatePaymentPin(String method, String pin) {
+        if (!pin.matches("\\d{4,6}")) {
+            throw new ApiException(400, method + " requires a numeric PIN containing 4 to 6 digits.");
+        }
     }
 
     // ================= ORDERS =================
@@ -389,6 +455,15 @@ public class StockPilotServer {
         Map<String, Object> m = new LinkedHashMap<>();
         for (int i = 0; i < kv.length; i += 2) m.put((String) kv[i], kv[i + 1]);
         return m;
+    }
+    static String accountMask(String account) {
+        String digits = account.replaceAll("[^0-9]", "");
+        if (!digits.isEmpty()) {
+            int visible = Math.min(4, digits.length());
+            return "*".repeat(Math.max(0, digits.length() - visible)) + digits.substring(digits.length() - visible);
+        }
+        int at = account.indexOf('@');
+        return at > 1 ? account.substring(0, 2) + "***" + account.substring(at) : account;
     }
     static Map<String, Object> ok() { return obj("ok", true); }
     static String str(Object o) { return o == null ? "" : String.valueOf(o); }

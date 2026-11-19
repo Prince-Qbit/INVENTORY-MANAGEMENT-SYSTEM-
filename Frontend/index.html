@@ -290,6 +290,66 @@
                         <div class="change-row"><span>Change due</span><strong id="changeDue">GH₵0.00</strong></div>
                         <small id="cashShortfall" class="error-message"></small>
                     </div>
+                    <div id="mobileMoneyFields" class="payment-fields hidden">
+                        <small class="provider-status">Live network prompts require merchant API credentials configured on the server.</small>
+                        <label for="mobileMoneyProvider">Mobile Money network</label>
+                        <input type="hidden" id="mobileMoneyProvider" value="">
+                        <div class="provider-options" aria-label="Mobile Money network">
+                            <button type="button" class="provider-option mobile-provider" data-provider="Telecel" data-target="mobileMoneyProvider">
+                                <span class="provider-icon telecel-icon">T</span>
+                                <span><strong>Telecel</strong><small>Telecel Cash</small></span>
+                            </button>
+                            <button type="button" class="provider-option mobile-provider" data-provider="MTN" data-target="mobileMoneyProvider">
+                                <span class="provider-icon mtn-icon">MTN</span>
+                                <span><strong>MTN</strong><small>Mobile Money</small></span>
+                            </button>
+                            <button type="button" class="provider-option mobile-provider" data-provider="AirtelTigo" data-target="mobileMoneyProvider">
+                                <span class="provider-icon airteltigo-icon">AT</span>
+                                <span><strong>AirtelTigo</strong><small>Money</small></span>
+                            </button>
+                        </div>
+                        <label for="mobileMoneyNumber">Mobile Money number</label>
+                        <input id="mobileMoneyNumber" type="tel" inputmode="tel" autocomplete="tel" placeholder="e.g. 0241234567">
+                    </div>
+                    <div id="cardFields" class="payment-fields hidden">
+                        <small class="provider-status">PayPal and 3DS card prompts require provider credentials configured on the server.</small>
+                        <label for="cardProvider">Card type</label>
+                        <input type="hidden" id="cardProvider" value="">
+                        <div class="provider-options" aria-label="Card or PayPal provider">
+                            <button type="button" class="provider-option card-provider" data-provider="Visa Card" data-target="cardProvider">
+                                <span class="provider-icon visa-icon">VISA</span>
+                                <span><strong>Visa Card</strong><small>Credit or debit</small></span>
+                            </button>
+                            <button type="button" class="provider-option card-provider" data-provider="MasterCard" data-target="cardProvider">
+                                <span class="provider-icon mastercard-icon"><i></i><i></i></span>
+                                <span><strong>MasterCard</strong><small>Credit or debit</small></span>
+                            </button>
+                            <button type="button" class="provider-option card-provider" data-provider="PayPal" data-target="cardProvider">
+                                <span class="provider-icon paypal-icon">P</span>
+                                <span><strong>PayPal</strong><small>PayPal account</small></span>
+                            </button>
+                        </div>
+                        <div id="cardAccountFields">
+                            <label for="cardNumber">Card number</label>
+                            <input id="cardNumber" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="Enter card number">
+                        </div>
+                        <div id="paypalAccountFields" class="hidden">
+                            <label for="paypalEmail">PayPal email</label>
+                            <input id="paypalEmail" type="email" autocomplete="email" placeholder="name@example.com">
+                        </div>
+                        <label for="cardHolderName">Name on card / account</label>
+                        <input id="cardHolderName" type="text" autocomplete="cc-name" placeholder="Full name">
+                        <div id="physicalCardFields" class="form-grid">
+                            <div>
+                                <label for="cardExpiry">Expiry</label>
+                                <input id="cardExpiry" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY">
+                            </div>
+                            <div>
+                                <label for="cardCvv">CVV</label>
+                                <input id="cardCvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="CVV">
+                            </div>
+                        </div>
+                    </div>
                     <div class="cart-actions">
                         <button type="button" class="secondary-btn" id="saveOrderButton">Save order</button>
                         <button type="button" class="primary-btn checkout-btn" id="checkoutButton">Complete sale <i data-lucide="arrow-right"></i></button>
