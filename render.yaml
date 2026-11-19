@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: stockpilot-server
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
