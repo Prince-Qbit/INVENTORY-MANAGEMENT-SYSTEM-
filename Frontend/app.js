@@ -1,5 +1,5 @@
 /* StockPilot - local demo application. All forms and messages stay inside the page. */
-const $ = id => document.getElementById(id)
+const $ = id => document.getElementById(id);
 const money = value => `GH₵${(Number(value) || 0).toFixed(2)}`;
 const todayKey = () => new Date().toLocaleDateString('en-CA');
 const placeholder = 'images/products.svg';
